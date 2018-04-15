@@ -198,7 +198,7 @@ class DeepFashionDataset():
                     for file_name in os.listdir(subfolder_3_path):
 
                         file_path = os.path.join(subfolder_3_path, file_name)
-                        print('>> {}'.format(file_path))
+                        # print('>> {}'.format(file_path))
                         label = self.__categorical_labels__(file_path)
 
                         if is_load_data_arr == False:
