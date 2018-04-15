@@ -57,7 +57,7 @@ def __vgg16_model__():
     model.add(Dropout(0.2))
 
     # Loads ImageNet pre-trained data
-    model.load_weights('/content/Smart-Advertising-Systems/Models/vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5')
+    model.load_weights('/content/vgg16_weights_tf_dim_ordering_tf_kernels_notop.h5')
 
     # Truncate and replace softmax layer for transfer learning
     # Add Fully Connected Layer
