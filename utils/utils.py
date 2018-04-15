@@ -99,10 +99,9 @@ class DeepFashionDataset():
 
     def __load_encode_images__(self, image_paths):
         # img_arr = []
-        # for image_path in image_paths:
         img = cv2.imread(image_paths)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img /= 255.0
+        img = img/255.0
         # img_arr.append(img)
         return img
 
