@@ -97,7 +97,7 @@ class DeepFashionDataset():
                 self.__save_image_with_labels(saved_file_path, cropped_img)
 
 
-    def load_encode_images(self, image_paths):
+    def __load_encode_images__(self, image_paths):
         img_arr = []
         for image_path in image_paths:
             img = cv2.imread(image_path)
@@ -182,8 +182,8 @@ class DeepFashionDataset():
         return label
 
 
-    def load_dataset(self, folder_path):
-        image_paths = []
+    def load_dataset(self, folder_path, is_load_data_arr=False):
+        images = []
         labels = []
 
         print('Loading ...')
@@ -201,22 +201,24 @@ class DeepFashionDataset():
                         file_path = os.path.join(subfolder_3_path, file_name)
                         label = self.__categorical_labels__(file_path)
 
-                        image_paths.append(file_path)
+                        if is_load_data_arr == False:
+                            images.append(file_path)
+                        
+                        elif is_load_data_arr == True:
+                            img_arr = self.__load_encode_images__(file_path)
+                            images.append(img_arr)
+
                         labels.append(label)
 
         print('#No. images in \'{}\': {} image(s)'.format(folder_path, len(image_paths)))
-
-        return [image_paths, labels]
-
-
- 
+        return [images, labels]
 
 
 def main():
     input_data_dir = '/mnt/Data/Dataset/Dataset/In-shop Clothes Retrieval Benchmark/'
     # txt_anotation_path = '/media/vmc/12D37C49724FE954/Well-Look/Dataset/DeepFashion/Anno/list_bbox.txt'
     catchy = DeepFashionDataset() 
-    catchy.load_dataset(input_data_dir)
+    [images, labels] = catchy.load_dataset(input_data_dir)
 
 
 if __name__ == '__main__':
