@@ -98,14 +98,13 @@ class DeepFashionDataset():
 
 
     def __load_encode_images__(self, image_paths):
-        img_arr = []
-        for image_path in image_paths:
-            img = cv2.imread(image_path)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img /= 255.0
-            img_arr.append(img)
-
-        return img_arr
+        # img_arr = []
+        # for image_path in image_paths:
+        img = cv2.imread(image_paths)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img /= 255.0
+        # img_arr.append(img)
+        return img
 
     # def data_augment(self, folder_dir):
         
@@ -168,7 +167,7 @@ class DeepFashionDataset():
         label = np.zeros(shape=[18, 1], dtype=int) # 1     : gender
                                                     # 2-18  : categorical 
 
-        print(gender_splitted)
+        # print(gender_splitted)
         if gender_splitted == 'MEN':
             label[0] = 0
             print('Hello')
@@ -200,6 +199,7 @@ class DeepFashionDataset():
                     for file_name in os.listdir(subfolder_3_path):
 
                         file_path = os.path.join(subfolder_3_path, file_name)
+                        print('>> {}'.format(file_path))
                         label = self.__categorical_labels__(file_path)
 
                         if is_load_data_arr == False:
@@ -211,5 +211,5 @@ class DeepFashionDataset():
 
                         labels.append(label)
 
-        print('#No. images in \'{}\': {} image(s)'.format(folder_path, len(image_paths)))
+        print('#No. images in \'{}\': {} image(s)'.format(folder_path, len(images)))
         return [images, labels]
