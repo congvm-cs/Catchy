@@ -102,6 +102,7 @@ class DeepFashionDataset():
         for image_path in image_paths:
             img = cv2.imread(image_path)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img /= 255.0
             img_arr.append(img)
 
         return img_arr
@@ -212,14 +213,3 @@ class DeepFashionDataset():
 
         print('#No. images in \'{}\': {} image(s)'.format(folder_path, len(image_paths)))
         return [images, labels]
-
-
-def main():
-    input_data_dir = '/mnt/Data/Dataset/Dataset/In-shop Clothes Retrieval Benchmark/'
-    # txt_anotation_path = '/media/vmc/12D37C49724FE954/Well-Look/Dataset/DeepFashion/Anno/list_bbox.txt'
-    catchy = DeepFashionDataset() 
-    [images, labels] = catchy.load_dataset(input_data_dir)
-
-
-if __name__ == '__main__':
-    main()

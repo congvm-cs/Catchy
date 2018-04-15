@@ -91,5 +91,15 @@ def __vgg16_model__():
 # Load image
 
 dgData = utils.DeepFashionDataset()
-[image_paths, labels] = dgData.load_dataset('/content/data')
+[images, labels] = dgData.load_dataset('/content/data', True)
+
+model = __vgg16_model__()
+
+from sklearn.model_selection import train_test_split
+[X_train, X_test, y_train, y_test] = train_test_split(images, labels, random_state=0, test_size=0.1)
+
+model.fit(x=X_train, y=y_train, batch_size=500, 
+                                epochs=100,
+                                validation_data=(X_test, y_test))
+
 
