@@ -98,6 +98,11 @@ model = __vgg16_model__()
 from sklearn.model_selection import train_test_split
 [X_train, X_test, y_train, y_test] = train_test_split(images, labels, random_state=0, test_size=0.1)
 
+print("Shape of X_train: {}".format(X_train.shape))
+print("Shape of X_test: {}".format(X_test.shape))
+print("Shape of y_train: {}".format(y_train.shape))
+print("Shape of y_test: {}".format(y_test.shape))
+
 model.fit(x=X_train, y=y_train, batch_size=500, 
                                 epochs=100,
                                 validation_data=(X_test, y_test))
