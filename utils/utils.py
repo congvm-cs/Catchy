@@ -1,7 +1,7 @@
 import cv2
 import os
 import numpy as np
-from keras.preprocessing.image import ImageDataGenerator
+from keras.preprocessing.image import ImageDataGenerator    
 
 class DeepFashionDataset():
 
@@ -70,7 +70,7 @@ class DeepFashionDataset():
         pass
 
 
-    def load_images_and_labels(self, data_dir, anotation_dir, save_image=False, saved_file_path=None):
+    def load_images_with_notations(self, data_dir, anotation_dir, save_image=False, saved_file_path=None):
         file_path, coordinations = self.__load_anotation_file__(anotation_dir)
 
         
@@ -97,60 +97,47 @@ class DeepFashionDataset():
                 self.__save_image_with_labels(saved_file_path, cropped_img)
 
 
-    def data_augment(self, folder_dir):
-        
-        datagen = ImageDataGenerator(
-                rotation_range=20,
-                width_shift_range=0.1,
-                height_shift_range=0.1,
-                # rescale=1./255,
-                # shear_range=0.2,
-                zoom_range=0.1,
-                horizontal_flip=True,
-                fill_mode='constant')
-
-        [image_paths, counter] = self.__get_image_path__(folder_dir)
-
-        print(counter)
+    def load_encode_images(self, image_paths):
+        img_arr = []
         for image_path in image_paths:
-            stored_folder = os.path.split(image_path)[0]
+            img = cv2.imread(image_path)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img_arr.append(img)
 
-            origin_I_train = cv2.imread(image_path)
-            origin_I_train = cv2.cvtColor(origin_I_train, cv2.COLOR_BGR2RGB)
-            ret = self.__check_size__(origin_I_train, 256)
-            if ret == True:
-                i = 0
-                print('--> {}'.format(image_path))
-                origin_I_train = np.reshape(origin_I_train, (1, origin_I_train.shape[0], origin_I_train.shape[1], 3)) # this is a Numpy array with shape (1, 3, 150, 150
-                for _ in datagen.flow(origin_I_train, batch_size=1,
-                                    save_to_dir=stored_folder, save_prefix='aug_img', save_format='jpg'):
-                    i += 1
-                    if i > 2:
-                        break  # otherwise the generator would loop indefinitely
-            else:
-                print('Wrong Size: {}'.format(image_path))
+        return img_arr
 
-    def __get_image_path__(self, folder_dir):
-        image_paths = []
-        counter = 0
-        subfolder_name_arr = os.listdir(folder_dir)
+    # def data_augment(self, folder_dir):
+        
+    #     datagen = ImageDataGenerator(
+    #             rotation_range=20,
+    #             width_shift_range=0.1,
+    #             height_shift_range=0.1,
+    #             # rescale=1./255,
+    #             # shear_range=0.2,
+    #             zoom_range=0.1,
+    #             horizontal_flip=True,
+    #             fill_mode='constant')
 
-        for subfolder_name in subfolder_name_arr:
-            subfolder_dir_arr = os.path.join(folder_dir, subfolder_name)
-            id_subfolder_dir_arr = os.listdir(subfolder_dir_arr)
-                
-            for id_subfolder_name in id_subfolder_dir_arr:
-                id_subfolder_dir = os.path.join(subfolder_dir_arr, id_subfolder_name)
-                file_name_arr = os.listdir(id_subfolder_dir)
+    #     [image_paths, counter] = self.__get_image_path__(folder_dir)
 
-                for file_name in file_name_arr:
-                    file_path = os.path.join(id_subfolder_dir, file_name)
-                    # print('--> {}'.format(file_path))
-                    image_paths.append(file_path)
-                    counter += 1
+    #     print(counter)
+    #     for image_path in image_paths:
+    #         stored_folder = os.path.split(image_path)[0]
 
-        return [image_paths, counter]
-
+    #         origin_I_train = cv2.imread(image_path)
+    #         origin_I_train = cv2.cvtColor(origin_I_train, cv2.COLOR_BGR2RGB)
+    #         ret = self.__check_size__(origin_I_train, 256)
+    #         if ret == True:
+    #             i = 0
+    #             print('--> {}'.format(image_path))
+    #             origin_I_train = np.reshape(origin_I_train, (1, origin_I_train.shape[0], origin_I_train.shape[1], 3)) # this is a Numpy array with shape (1, 3, 150, 150
+    #             for _ in datagen.flow(origin_I_train, batch_size=1,
+    #                                 save_to_dir=stored_folder, save_prefix='aug_img', save_format='jpg'):
+    #                 i += 1
+    #                 if i > 2:
+    #                     break  # otherwise the generator would loop indefinitely
+    #         else:
+    #             print('Wrong Size: {}'.format(image_path))
 
     def __check_size__(self, img, desired_size):
         img = np.array(img)
@@ -159,11 +146,77 @@ class DeepFashionDataset():
         else:
             return False
 
+
+    def __categorical_labels__(self, image_path):
+        ''' Rename label as a image rely on category
+        '''
+        categories = ['Denim', 'Jackets_Vests', 'Pants', 'Shirts_Polos', 'Shorts', 'Suiting', 'Sweaters',
+                    'Sweatshirts_Hoodies', 'Tees_Tanks', 'Blouses_Shirts', 'Cardigans', 'Dresses',
+                    'Graphic_Tees', 'Jackets_Coats', 'Leggings', 'Rompers_Jumpsuits', 'Skirts'] # 17
+        genders = ['MAN', 'WOMAN']
+        
+        # File name example: 
+        # Dataset/In-shop Clothes Retrieval Benchmark/WOMEN/Denim/id_00000055/image_name.jpg
+
+        # image_name = image_path.split('/')[-1:]
+        
+        categorical_name = image_path.split('/')[-3]
+        gender_splitted = image_path.split('/')[-4]
+
+        # print(gender_splitted)
+        label = np.zeros(shape=[18, 1], dtype=int) # 1     : gender
+                                                    # 2-18  : categorical 
+
+        print(gender_splitted)
+        if gender_splitted == 'MEN':
+            label[0] = 0
+            print('Hello')
+        else:
+            label[0] = 1
+
+        for idx, category in enumerate(categories):
+            if categorical_name == category:
+                label[idx + 1] = 1
+                break
+
+        return label
+
+
+    def load_dataset(self, folder_path):
+        image_paths = []
+        labels = []
+
+        print('Loading ...')
+        for subfolder_1_name in os.listdir(folder_path):
+            subfolder_1_path = os.path.join(folder_path, subfolder_1_name)
+
+            for subfolder_2_name in os.listdir(subfolder_1_path):
+                subfolder_2_path = os.path.join(subfolder_1_path, subfolder_2_name)
+
+                for subfolder_3_name in os.listdir(subfolder_2_path):
+                    subfolder_3_path = os.path.join(subfolder_2_path, subfolder_3_name)
+                        
+                    for file_name in os.listdir(subfolder_3_path):
+
+                        file_path = os.path.join(subfolder_3_path, file_name)
+                        label = self.__categorical_labels__(file_path)
+
+                        image_paths.append(file_path)
+                        labels.append(label)
+
+        print('#No. images in \'{}\': {} image(s)'.format(folder_path, len(image_paths)))
+
+        return [image_paths, labels]
+
+
+ 
+
+
 def main():
-    input_data_dir = '/mnt/Data/Dataset/Dataset/In-shop Clothes Retrieval Benchmark/MEN/'
+    input_data_dir = '/mnt/Data/Dataset/Dataset/In-shop Clothes Retrieval Benchmark/'
     # txt_anotation_path = '/media/vmc/12D37C49724FE954/Well-Look/Dataset/DeepFashion/Anno/list_bbox.txt'
     catchy = DeepFashionDataset() 
-    catchy.data_augment(input_data_dir)
+    catchy.load_dataset(input_data_dir)
 
 
 if __name__ == '__main__':
