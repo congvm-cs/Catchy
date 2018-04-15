@@ -91,7 +91,7 @@ def __vgg16_model__():
 # Load image
 
 dgData = utils.DeepFashionDataset()
-[images, labels] = dgData.load_dataset('/content/data', True)
+[images, labels] = dgData.load_dataset('/content/data/img/', True)
 
 model = __vgg16_model__()
 
