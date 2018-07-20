@@ -108,3 +108,49 @@ class DeepFashionProcessor():
                 cv2.imwrite(output_name, cropped_img)
 
         return cropped_img
+
+
+    def categorize_labels(self, file_path):
+        # Labels = ['Male, Female, Top, Bottom, Full, [STYLES]']
+    #     NUM_LABELS = 18
+        NUM_LABELS = 21
+        STYLES = ['Denim', 'Jackets_Vests', 'Pants', 'Shirts_Polos', 'Shorts', 
+                'Suiting', 'Sweaters', 'Sweatshirts_Hoodies', 'Tees_Tanks', 
+                'Blouses_Shirts', 'Cardigans', 'Dresses','Graphic_Tees',
+                'Jackets_Coats', 'Leggings', 'Rompers_Jumpsuits', 'Skirts']
+        
+        OUTFITS_TOP = ['Jackets_Vests', 'Sweaters', 'Shirts_Polos', 'Shorts', 'Suiting', 
+                    'Blouses_Shirts', 'Sweatshirts_Hoodies', 'Tees_Tanks', 
+                    'Cardigans', 'Graphic_Tees', 'Jackets_Coats'] 
+        OUTFITS_BOTTOM = ['Denim', 'Pants', 'Leggings', 'Dresses']
+        OUTFITS_FULL = ['Skirts', 'Rompers_Jumpsuits']
+        
+        labels = np.zeros((1, NUM_LABELS))  # 0:     gender
+                                            # 1-18 : style
+        
+        # file_path: /content/img/MEN/Denim/id_00002243/01_1_front.jpg 
+        style = file_path.split('/')[-3]
+        gender = file_path.split('/')[-4]
+        
+        # Gender
+        if gender == 'WOMEN':
+            labels[0, 0] = 1   # Female
+        else:
+            labels[0, 0] = 0   # Male
+        
+        # Position
+        # Top, Bottom, Full
+        if style in OUTFITS_TOP:
+            labels[0, 1] = 1 
+        if style in OUTFITS_BOTTOM:
+            labels[0, 2] = 1 
+        if style in OUTFITS_FULL:
+            labels[0, 3] = 1 
+        
+        # Style
+        for idx, style_in_arr in enumerate(STYLES):
+            if style == style_in_arr:
+                labels[0, idx+4] = 1
+                
+        labels = np.asarray(labels).reshape(-1)
+        return labels
