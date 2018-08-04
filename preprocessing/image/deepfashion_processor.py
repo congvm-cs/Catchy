@@ -22,16 +22,16 @@ class DeepFashionProcessor():
                 txt_arr = line.split(' ')
                 result = self.__remove_whitespace__(txt_arr)
                 file_path.append(result[0])
-                coordinations.append([result[1], result[2], result[3], result[4]])
+                coordinations.append([result[3], result[4], result[5], result[6]])
 
         return file_path, coordinations
 
 
     def __aligned_crop__(self, img, coordinations):
-        x1 = int(coordinations[0])
-        y1 = int(coordinations[1])
-        x2 = int(coordinations[2])
-        y2 = int(coordinations[3])
+        x1 = int(int(coordinations[0])*4.4)
+        y1 = int(int(coordinations[1])*4.4)
+        x2 = int(int(coordinations[2])*4.3)
+        y2 = int(int(coordinations[3])*4.3)
 
         width = np.abs(x2 - x1)
         height = np.abs(y2 - y1)
@@ -67,7 +67,7 @@ class DeepFashionProcessor():
         return image
 
 
-    def load_images_with_notations(self, data_dir, anotation_dir, save_image=False, saved_file_path=None, new_size=None):
+    def load_images_with_notations(self, data_dir, anotation_dir, save_image=False, saved_file_path=None, new_size=512, add_padding= False):
         ''' Load images and notations from hard disk
 
             Parameter(s):
@@ -93,6 +93,9 @@ class DeepFashionProcessor():
             # x2 = int(coord[2])
             # y2 = int(coord[3])
     #           cv2.rectangle(original_img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            if add_padding:
+                WHITE = (255, 255, 255)
+                original_img = constant=cv2.copyMakeBorder(original_img,0 ,0 ,175, 175,cv2.BORDER_CONSTANT,value=WHITE)
             cropped_img  = self.__aligned_crop__(original_img, coord) 
 
             if save_image:
@@ -103,8 +106,7 @@ class DeepFashionProcessor():
                     os.makedirs(subfolder)
 
                 if new_size is not None:
-                    cropped_img = self.__resize__(cropped_img, 128)
-
+                    cropped_img = self.__resize__(cropped_img, new_size)
                 cv2.imwrite(output_name, cropped_img)
 
         return cropped_img
@@ -154,3 +156,7 @@ class DeepFashionProcessor():
                 
         labels = np.asarray(labels).reshape(-1)
         return labels
+
+newx = DeepFashionProcessor()
+newx.load_images_with_notations(data_dir = '/Users/ngocphu/Documents/Deep_Fashion' , anotation_dir = '/Users/ngocphu/Documents/Deep_Fashion/list_bbox_inshop.txt', saved_file_path = '/Users/ngocphu/Documents/Deep_Fashion/ouput_highres', 
+                                save_image= True, add_padding = True)
